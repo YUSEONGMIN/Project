@@ -2,9 +2,11 @@
 
 ## 목차
 
-- [시작](#section-1---시작)
+- [Section 1 - 시작](#section-1---시작)
 - [Section 2 - BE 구축하기](#section-2---be-구축하기)
-
+# [Section 3- FE 구축하기](#목차)
+  - [BE 서버와 연결하기](#be-서버와-연결하기)
+  - [채팅 UI](#채팅-ui)
 
 
 # [Section 1 - 시작](#목차)
@@ -97,3 +99,20 @@ CORS(Cross-Origin Resource Sharing)
 cors
 아무데서나 오는 요청을 다 허용하면 보안에 취약함
 어디에서 요청이 왔는지 확인해줌
+
+# [Section 3- FE 구축하기](#목차)
+
+- [BE 서버와 연결하기](#be-서버와-연결하기)
+- [채팅 UI](#채팅-ui)
+
+
+## [BE 서버와 연결하기](#section-3--fe-구축하기)
+
+fetch 이용
+
+https://developer.mozilla.org/ko/docs/Web/API/Fetch_API/Using_Fetch
+
+
+## [채팅 UI](#section-3--fe-구축하기)
+
+https://codepen.io/
