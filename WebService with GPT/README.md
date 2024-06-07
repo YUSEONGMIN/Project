@@ -4,7 +4,7 @@
 
 - [Section 1 - 시작](#section-1---시작)
 - [Section 2 - BE 구축하기](#section-2---be-구축하기)
-# [Section 3- FE 구축하기](#목차)
+- [Section 3- FE 구축하기](#목차)
   - [BE 서버와 연결하기](#be-서버와-연결하기)
   - [채팅 UI](#채팅-ui)
 
@@ -117,19 +117,22 @@ https://developer.mozilla.org/ko/docs/Web/API/Fetch_API/Using_Fetch
 
 https://codepen.io/
 
-# [Section 4 - 기능 고도화]
+# [Section 4 - 기능 고도화](#목차)
 
 Font Awesome
 
 https://fontawesome.com/
 
-# [Section 5 - 배포하기]
+# [Section 5 - 배포하기](#목차)
 
-## [FE 배포]
+- [FE 배포](#fe-배포)
+- [BE 배포](#be-배포)
+
+## [FE 배포](#section-5---배포하기)
 
 https://www.cloudflare.com/
 
-## [BE 배포]
+## [BE 배포](#section-5---배포하기)
 
 AWS Lambda
 
