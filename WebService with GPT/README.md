@@ -116,3 +116,29 @@ https://developer.mozilla.org/ko/docs/Web/API/Fetch_API/Using_Fetch
 ## [채팅 UI](#section-3--fe-구축하기)
 
 https://codepen.io/
+
+# [Section 4 - 기능 고도화]
+
+Font Awesome
+
+https://fontawesome.com/
+
+# [Section 5 - 배포하기]
+
+## [FE 배포]
+
+https://www.cloudflare.com/
+
+## [BE 배포]
+
+AWS Lambda
+
+```js
+module.exports.handler = serverless(app);
+```
+
+![alt text](img/image.png)
+
+![alt text](img/image-1.png)
+
+Create function
