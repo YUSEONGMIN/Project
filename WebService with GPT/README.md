@@ -3,7 +3,10 @@
 ## 목차
 
 - [Section 1 - 시작](#section-1---시작)
+  - [ChatGPT](#chatgpt)
 - [Section 2 - BE 구축하기](#section-2---be-구축하기)
+  - [Node.js로 ChatGPT API 구현하기](#nodejs로-chatgpt-api-구현하기)
+  - [Express로 BE 서버 구축하기](#express로-be-서버-구축하기)
 - [Section 3- FE 구축하기](#목차)
   - [BE 서버와 연결하기](#be-서버와-연결하기)
   - [채팅 UI](#채팅-ui)
@@ -16,31 +19,100 @@
 
 # [Section 1 - 시작](#목차)
 
-## ChatGPT
+- [ChatGPT](#chatgpt)
 
-## ChatGPT Playground
+## [ChatGPT](#section-1---시작)
+
+생성하는 사전 학습된 트랜스포머  
+GPT(Generative Pretrained Transfomer)
+
+### ChatGPT Playground
+
+SYSTEM: ChatGPT 역할 부여  
+USER: 유저 채팅  
+ASSISTANT: chatGPT  
+
+Temperature: 무작위성 
+- 낮으면 같은 답변이 나올 확률이 높음  
+- 의학적 지식 등은 랜덤한 답변이 나오면 좋지 않음 (잘 조절)  
+
+Maximum length: 답변 길이  
+- 최대 2048개의 토큰까지(언어에 따라 다름)
+
+Top P: 상위 확률 단어    
+- 각 결과 값이 나올 확률을 Top P 까지 누적 합 했을 때
+- 그 안에서 랜덤하게 선택 (Top P=1이면 모든 결과 중 랜덤하게 -> 엉뚱한 결과까지)
+
+Frequency penalty: 빈도 패널티    
+- 계속 등장하는 단어에 패널티를 부여 (낮으면 같은 문장이 반복)
+
+Presence penalty: 존재 패널티
+- 계속 등장하는 답변에 패널티를 부여
+
+---
+
+시스템에서 역할을 먼저 부여하고, 유저로 한번 더 인식 -> 프롬프트 엔지니어
 
 
 # [Section 2 - BE 구축하기](#목차)
 
+- [Node.js로 ChatGPT API 구현하기](#nodejs로-chatgpt-api-구현하기)
+- [Express로 BE 서버 구축하기](#express로-be-서버-구축하기)
 
-https://www.npmjs.com/package/openai
+## [Node.js로 ChatGPT API 구현하기](#section-2---be-구축하기)
 
+https://www.npmjs.com/package/openai  
+
+```sh
+npm install openai
+```
+
+```js
+// import OpenAI from 'openai';
+const OpenAI = require("openai");
+
+const openai = new OpenAI({
+  apiKey: process.env['OPENAI_API_KEY'],
+});
+
+async function apiCall() {
+  const chatCompletion = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    max_tokens: 100,
+    temperature: 0.5,
+    messages: [
+      { role: 'system', content: '당신은 세계 최고의 ... 입니다. 어떤 대답도 할 수 있다...' },
+      { role: 'user', content: '당신은 세계 최고의 ... 입니다. 어떤 대답도 할 수 있다...' },
+      { role: 'assistant', content: '위에까지 하고 assistant 답변 결과를 붙여넣기' },
+      { role: 'user', content: '입력 값 ex) 오늘의 운세가 뭐야?' },
+    ],
+  });
+  console.log(chatCompletion.choices[0].message);
+}
+
+apiCall();
+```
+
+system, user, assistant 이 구조로 만든 후 역할 부여하기
+
+```sh
+node index.js
+```
+
+
+## [Express로 BE 서버 구축하기](#section-2---be-구축하기)
 
 https://www.npmjs.com/package/express
 
-Node.js
-
-Express란?
-
-Node.js 웹 애플리케이션 프레임워크
-
+Express란?   
 **가장 기본적인 Node.js에서 서버를 만드는 프레임워크**
 
 Express를 이용해서 웹 서버를 만듦  
-프론트에서 요청하면 실행해서 돌려주는 형태로
+프론트에서 요청하면 실행해서 돌려주는 형태
 
-Express
+```sh
+npm install express
+```
 
 ```js
 const express = require('express') // express 불러오기
@@ -58,11 +130,8 @@ get 요청이 오면 3000 포트에 'Hello World"를 돌려준다는 뜻
 
 실행 후 `localhost:3000` 접속
 
+라우트 메소드  
 https://expressjs.com/ko/guide/routing.html
-
-
-
-라우트 메소드
 
 ```js
 // GET method route
@@ -96,13 +165,13 @@ app.post('/profile', function (req, res, next) {
 프론트엔드에서 요청을 하는데  
 그 요청이 json 형태로 들어왔을 때 받으려면 `app.use`
 
-근데 그냥 프론트에서 요청하면 CORS 이슈가 있음  
+근데 그냥 프론트에서 요청하면 CORS 이슈가 있음   
 
 CORS(Cross-Origin Resource Sharing)  
 'CORS 정책을 지킨 리소스 요청'
 
-cors
-아무데서나 오는 요청을 다 허용하면 보안에 취약함
+cors  
+아무데서나 오는 요청을 다 허용하면 보안에 취약함  
 어디에서 요청이 왔는지 확인해줌
 
 # [Section 3- FE 구축하기](#목차)
