@@ -167,6 +167,17 @@ app.post('/profile', function (req, res, next) {
 
 근데 그냥 프론트에서 요청하면 CORS 이슈가 있음   
 
+```js
+var cors = require('cors')
+
+// CORS 이슈 해결
+let corsOptions = {
+    origin: 'https://chatdoge-yuseongmin.pages.dev',
+    Credential: true
+}
+app.use(cors());
+```
+
 CORS(Cross-Origin Resource Sharing)  
 'CORS 정책을 지킨 리소스 요청'
 
@@ -182,20 +193,220 @@ cors
 
 ## [BE 서버와 연결하기](#section-3--fe-구축하기)
 
-fetch 이용
+fetch라는 요청을 날린 후 응답을 받아서 프론트엔드에 표시
 
 https://developer.mozilla.org/ko/docs/Web/API/Fetch_API/Using_Fetch
+
+```html
+<button onclick="getFortune()">요청하기</button>
+
+<script>
+  async function getFortune() {
+    try {
+      const response = await fetch("http://localhost:3000/fortuneTell", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const data = await response.json();
+      console.log("성공:", data);
+    } catch (error) {
+      console.error("실패:", error);
+    }
+  }
+</script>
+```
+
+FE에서 json으로 받아오므로 BE에서 결과 값을 json으로 변환
+
+```js
+app.post('/fortuneTell', async function (req, res) {
+  // res.send(fortune);
+  res.json({"assistant": fortune});
+});
+```
+
+Live Server 인스텐션을 이용하면 프론트엔드 서버를 볼 수 있음  
+요청하기 버튼을 누르면 콘솔 창에서 결과를 확인할 수 있음
 
 
 ## [채팅 UI](#section-3--fe-구축하기)
 
+codepen에는 다양한 채팅 ui가 있음  
+
 https://codepen.io/
 
+```css
+    <style>
+        body {
+          ...
+        }
+        .chat-box {
+          ...
+        }
+    </style>
+```
+
+```js
+    <script>
+        const chatBox = document.querySelector('.chat-box');
+
+        const sendMessage = async () => {
+            const chatInput = document.querySelector('.chat-input input');
+            const chatMessage = document.createElement('div');
+            chatMessage.classList.add('chat-message');
+            chatMessage.innerHTML = `
+              <p>${chatInput.value}</p>
+            `;
+            chatBox.appendChild(chatMessage);
+            chatInput.value = '';
+
+            const response = await fetch('your-api-url', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: chatInput.value,
+                })
+            });
+
+            const data = await response.json();
+
+            const astrologerMessage = document.createElement('div');
+            astrologerMessage.classList.add('chat-message');
+            astrologerMessage.innerHTML = `
+              <p>${data.assistant}</p>
+            `;
+            chatBox.appendChild(astrologerMessage);
+        };
+
+        document.querySelector('.chat-input button').addEventListener('click', sendMessage);
+    </script>
+```
+
+assistant와 user가 구분이 잘 안됨
+
+```html
+    <div id="chat" class="chat-container">
+        <div class="chat-box">
+            <div class="chat-message">
+                <p class="assistant">운세에 대해서 물어봐 주세요!</p>
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" placeholder="Type your message here...">
+            <button>Send</button>
+        </div>
+    </div>
+```
+
+```css
+    <style>
+        .chat-input button:hover {
+            background-color: #3e8e41;
+        }
+        .assistant {
+          ...
+        }
+    </style>
+```
+
+```js
+    <script>
+            astrologerMessage.innerHTML = `
+              <p class='assistant'>${data.assistant}</p>
+            `;
+            chatBox.appendChild(astrologerMessage);
+        };
+        ...
+    </script>
+```
+
+class를 추가하고 css를 적용하여 구분
+
+
 # [Section 4 - 기능 고도화](#목차)
+
+- [여러 채팅 메세지 연결](#여러-채팅-메세지-연결)
+
+## [여러 채팅 메세지 연결](#section-4---기능-고도화)
+
+```js
+    let messages = [
+        {role: "system", content: "당신은 세계 최고의 점성술사입니다..."},
+        {role: "user", content: "당신은 세계 최고의 점성술사입니다..."},
+        {role: "assistant", content: "안녕하세요! 저는 챗도지입니다..."},
+        {role: "user", content: `오늘의 운세가 뭐야?`},
+    ]
+```
+
+현재는 system, user, assistant, user로 고정되어 있음
+
+```html
+    <script>
+      ...
+            chatMessage.innerHTML = `
+              <p>${chatInput.value}</p>
+            `;
+            chatBox.appendChild(chatMessage);
+
+            chatInput.value = '';
+
+            const response = await fetch('http://localhost:3000/fortuneTell', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: chatInput.value                    
+                })
+            });
+```
+
+message라는 파라미터에  
+chatInput.value 값(input창에 입력한 메세지)을 가져와서 서버로 전송
+
+user가 입력한 대화와 assistant가 입력한 대화를 따로 담아두기
+
+```html
+    <script>
+        const chatBox = document.querySelector('.chat-box');
+        let userMessages = [];
+        let assistantMessages = [];
+
+
+```
+
+
+
+
+
+
+
+
+
 
 Font Awesome
 
 https://fontawesome.com/
+
+
+
+
+
+
+
+
+## DALLE2 이미지 제작
+
+
+
+
+
 
 # [Section 5 - 배포하기](#목차)
 
