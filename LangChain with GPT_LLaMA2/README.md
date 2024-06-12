@@ -32,9 +32,20 @@ print(result.content)
 
 ## Streamlit FE 구현하기
 
+https://streamlit.io/
+
+
 ```py
 import streamlit as st
 
 st.title("This is a title")
 st.title("_Streamlit_ is :blue[cool] :sunglasses:")
+```
+
+![alt text](img/image.png)
+
+```py
+st.title("인공지능 시인")
+title = st.text_input("시의 주제를 제시해주세요.")
+st.write("시의 주제는", title)
 ```
