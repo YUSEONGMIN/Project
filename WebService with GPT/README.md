@@ -7,7 +7,7 @@
 - [Section 2 - BE 구축하기](#section-2---be-구축하기)
   - [Node.js로 ChatGPT API 구현하기](#nodejs로-chatgpt-api-구현하기)
   - [Express로 BE 서버 구축하기](#express로-be-서버-구축하기)
-- [Section 3- FE 구축하기](#목차)
+- [Section 3- FE 구축하기](#section-3--fe-구축하기)
   - [BE 서버와 연결하기](#be-서버와-연결하기)
   - [채팅 UI](#채팅-ui)
 - [Section 4 - 기능 고도화](#section-4---기능-고도화)
@@ -186,6 +186,7 @@ CORS(Cross-Origin Resource Sharing)
 cors  
 아무데서나 오는 요청을 다 허용하면 보안에 취약함  
 어디에서 요청이 왔는지 확인해줌
+
 
 # [Section 3- FE 구축하기](#목차)
 
