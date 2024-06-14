@@ -169,6 +169,17 @@ app.post('/profile', function (req, res, next) {
 
 근데 그냥 프론트에서 요청하면 CORS 이슈가 있음   
 
+```js
+var cors = require('cors')
+
+// CORS 이슈 해결
+let corsOptions = {
+    origin: 'https://chatdoge-yuseongmin.pages.dev',
+    Credential: true
+}
+app.use(cors());
+```
+
 CORS(Cross-Origin Resource Sharing)  
 'CORS 정책을 지킨 리소스 요청'
 
@@ -186,7 +197,7 @@ cors
 
 front 폴더 생성 후 `index.html` 생성
 
-fetch 이용
+fetch라는 요청을 날린 후 응답을 받아서 프론트엔드에 표시
 
 https://developer.mozilla.org/ko/docs/Web/API/Fetch_API/Using_Fetch
 
@@ -215,16 +226,356 @@ https://developer.mozilla.org/ko/docs/Web/API/Fetch_API/Using_Fetch
 </script>
 ```
 
+```html
+<button onclick="getFortune()">요청하기</button>
+
+<script>
+  async function getFortune() {
+    try {
+      const response = await fetch("http://localhost:3000/fortuneTell", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const data = await response.json();
+      console.log("성공:", data);
+    } catch (error) {
+      console.error("실패:", error);
+    }
+  }
+</script>
+```
+
+FE에서 json으로 받아오므로 BE에서 결과 값을 json으로 변환
+
+```js
+app.post('/fortuneTell', async function (req, res) {
+  // res.send(fortune);
+  res.json({"assistant": fortune});
+});
+```
+
+Live Server 인스텐션을 이용하면 프론트엔드 서버를 볼 수 있음  
+요청하기 버튼을 누르면 콘솔 창에서 결과를 확인할 수 있음
+
 
 ## [채팅 UI](#section-3--fe-구축하기)
 
+codepen에는 다양한 채팅 ui가 있음  
+
 https://codepen.io/
 
+```css
+    <style>
+        body {
+          ...
+        }
+        .chat-box {
+          ...
+        }
+    </style>
+```
+
+```js
+    <script>
+        const chatBox = document.querySelector('.chat-box');
+
+        const sendMessage = async () => {
+            const chatInput = document.querySelector('.chat-input input');
+            const chatMessage = document.createElement('div');
+            chatMessage.classList.add('chat-message');
+            chatMessage.innerHTML = `
+              <p>${chatInput.value}</p>
+            `;
+            chatBox.appendChild(chatMessage);
+            chatInput.value = '';
+
+            const response = await fetch('your-api-url', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: chatInput.value,
+                })
+            });
+
+            const data = await response.json();
+
+            const astrologerMessage = document.createElement('div');
+            astrologerMessage.classList.add('chat-message');
+            astrologerMessage.innerHTML = `
+              <p>${data.assistant}</p>
+            `;
+            chatBox.appendChild(astrologerMessage);
+        };
+
+        document.querySelector('.chat-input button').addEventListener('click', sendMessage);
+    </script>
+```
+
+assistant와 user가 구분이 잘 안됨
+
+```html
+    <div id="chat" class="chat-container">
+        <div class="chat-box">
+            <div class="chat-message">
+                <p class="assistant">운세에 대해서 물어봐 주세요!</p>
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" placeholder="Type your message here...">
+            <button>Send</button>
+        </div>
+    </div>
+```
+
+```css
+    <style>
+        .chat-input button:hover {
+            background-color: #3e8e41;
+        }
+        .assistant {
+          ...
+        }
+    </style>
+```
+
+```js
+    <script>
+            astrologerMessage.innerHTML = `
+              <p class='assistant'>${data.assistant}</p>
+            `;
+            chatBox.appendChild(astrologerMessage);
+        };
+        ...
+    </script>
+```
+
+class를 추가하고 css를 적용하여 구분
+
+
 # [Section 4 - 기능 고도화](#목차)
+
+- [여러 채팅 메세지 연결](#여러-채팅-메세지-연결)
+- [DALLE2, 날짜](#dalle2-날짜)
+- [로딩 스피너 구현](#로딩-스피너-구현)
+
+
+## [여러 채팅 메세지 연결](#section-4---기능-고도화)
+
+```js
+    let messages = [
+        {role: "system", content: "당신은 세계 최고의 점성술사입니다..."},
+        {role: "user", content: "당신은 세계 최고의 점성술사입니다..."},
+        {role: "assistant", content: "안녕하세요! 저는 챗도지입니다..."},
+        {role: "user", content: `오늘의 운세가 뭐야?`},
+    ]
+```
+
+현재는 system, user, assistant, user로 고정되어 있음
+
+```html
+    <script>
+      ...
+            chatMessage.innerHTML = `
+              <p>${chatInput.value}</p>
+            `;
+            chatBox.appendChild(chatMessage);
+
+            chatInput.value = '';
+
+            const response = await fetch('http://localhost:3000/fortuneTell', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: chatInput.value                    
+                })
+            });
+```
+
+message라는 파라미터에  
+chatInput.value 값(input창에 입력한 메세지)을 가져와서 서버로 전송
+
+user가 입력한 대화와 assistant가 입력한 대화를 따로 담아두기  
+`let userMessages = [];`, `let assistantMessages = [];`
+
+```html
+    <script>
+        const chatBox = document.querySelector('.chat-box');
+        let userMessages = [];
+        let assistantMessages = [];
+
+        const sendMessage = async () => {
+            const chatInput = document.querySelector('.chat-input input');
+            const chatMessage = document.createElement('div');
+            chatMessage.classList.add('chat-message');
+            chatMessage.innerHTML = `
+    <p>${chatInput.value}</p>
+  `;
+            chatBox.appendChild(chatMessage);
+            //userMessage 메세지 추가
+            userMessages.push(chatInput.value);
+            ...
+
+            const data = await response.json();
+            //assistantMessage 메세지 추가
+            assistantMessages.push(data.assistant);
+            ...
+    <p class='assistant'>${data.assistant}</p>
+  `;
+```
+
+채팅을 입력할 때마다 userMessages에 추가  
+응답이 오면 assistantMessages에 담기
+
+`const data = await response.json();`  
+
+response가 data로 넘어옴
+
+`data.assistant`
+
+그 data를 추가  
+
+
+```html
+    <script>
+      ...
+            const response = await fetch('https://fev4oedl63ybwukii72q5hypk40siown.lambda-url.ap-northeast-2.on.aws/fortuneTell', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    myDateTime: myDateTime,
+                    userMessages: userMessages,
+                    assistantMessages: assistantMessages,
+                })
+            });
+```
+
+요청을 날릴 때 지금까지 있던 userMessages, assistantMessages를 json에 담아서 전송
+
+```js
+app.post('/fortuneTell', async function (req, res) {
+    let {userMessages, assistantMessages} = req.body
+```
+
+질문과 응답이 잘 추가되는 것을 볼 수 있다.  
+이것을 messages에 추가
+
+```js
+    while (userMessages.length != 0 || assistantMessages.length != 0) {
+        if (userMessages.length != 0) {
+            messages.push(
+                JSON.parse('{"role": "user", "content": "'+String(userMessages.shift()).replace(/\n/g,"")+'"}')
+            )
+        }
+        if (assistantMessages.length != 0) {
+            messages.push(
+                JSON.parse('{"role": "assistant", "content": "'+String(assistantMessages.shift()).replace(/\n/g,"")+'"}')
+            )
+        }
+    }
+```
+
+`shift`: 리스트에서 앞에서부터 추출  
+`.replace(/\n/g,"")`: 개행문자 제거  
+`JSON.parse`: 문자열을 JSON 형태로
+
+## [DALLE2, 날짜](#section-4---기능-고도화)
+
+https://labs.openai.com/
+
+
+```html
+<head>
+  <style>
+        .intro-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .intro-container img {
+            width: 50%;
+            min-width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="intro" class="intro-container">
+        <h1>운세를 알려드립니다.</h1>
+        <img src="img/doge.png" alt="chatdoge">
+    </div>
+
+    <div id="chat" class="chat-container" style="display: none;">
+        <div class="chat-box">
+            <div class="chat-message">
+                <p class="assistant">운세에 대해서 물어봐 주세요!</p>
+            </div>
+        </div>
+```
+
+`chat-container`는 처음부터 나오면 안되므로 `display: none`  
+`intro-container`의 자식 태그 `img`에 width를 %로 주어 반응형으로 
+
+```html
+        <label for="date">생년월일</label>
+        <input id="date" type="date">
+        <label for="hour">태어난 시간</label>
+        <select id="hour" name="hour">
+            <option value="">모름</option>
+            <option value="00">00</option>
+            <option value="01">01</option>
+            <option value="02">02</option>
+            <option value="03">03</option>
+            <option value="04">04</option>
+            <option value="05">05</option>
+            <option value="06">06</option>
+            <option value="07">07</option>
+            <option value="08">08</option>
+            <option value="09">09</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+            <option value="21">21</option>
+            <option value="22">22</option>
+            <option value="23">23</option>
+        </select>
+
+```
+
+
+
+## [로딩 스피너 구현](#section-4---기능-고도화)
 
 Font Awesome
 
 https://fontawesome.com/
+
+
+
+
+
+
+
+
 
 # [Section 5 - 배포하기](#목차)
 
