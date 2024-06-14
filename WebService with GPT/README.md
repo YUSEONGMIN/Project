@@ -526,7 +526,7 @@ https://labs.openai.com/
 ```
 
 `chat-container`는 처음부터 나오면 안되므로 `display: none`  
-`intro-container`의 자식 태그 `img`에 width를 %로 주어 반응형으로 
+`intro-container`의 자식 태그 `img`에 width를 %로 주어 반응형으로  
 
 ```html
         <label for="date">생년월일</label>
@@ -536,32 +536,36 @@ https://labs.openai.com/
             <option value="">모름</option>
             <option value="00">00</option>
             <option value="01">01</option>
-            <option value="02">02</option>
-            <option value="03">03</option>
-            <option value="04">04</option>
-            <option value="05">05</option>
-            <option value="06">06</option>
-            <option value="07">07</option>
-            <option value="08">08</option>
-            <option value="09">09</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-            <option value="13">13</option>
-            <option value="14">14</option>
-            <option value="15">15</option>
-            <option value="16">16</option>
-            <option value="17">17</option>
-            <option value="18">18</option>
-            <option value="19">19</option>
-            <option value="20">20</option>
-            <option value="21">21</option>
-            <option value="22">22</option>
+            ...
             <option value="23">23</option>
         </select>
-
+        <button onclick="start()">오늘의 운세보기</button>
 ```
 
+버튼을 눌렀을 때 생년월일 정보가 전송 (start 함수)
+
+```js
+        let myDateTime = ''
+
+        function start() {
+            const date = document.getElementById('date').value;
+            const hour = document.getElementById('hour').value;
+            if (date === '') {
+                alert('생년월일을 입력해주세요.');
+                return;
+            }
+            myDateTime = date + hour;
+
+            document.getElementById("intro").style.display = "none";
+            document.getElementById("chat").style.display = "block";
+        }
+```
+
+`document.querySelector('#date')` 등으로 date와 hour 값 가져오기  
+또는  
+ID로 가져오기 (`getElementById`)
+
+myDateTime 정보를 가져오면 `intro-container`는 숨기고 `chat-container`이 보이게
 
 
 ## [로딩 스피너 구현](#section-4---기능-고도화)
