@@ -61,6 +61,8 @@ Presence penalty: 존재 패널티
 
 ## [Node.js로 ChatGPT API 구현하기](#section-2---be-구축하기)
 
+backend 폴더 생성 후 `index.js` 생성
+
 https://www.npmjs.com/package/openai  
 
 ```sh
@@ -182,9 +184,36 @@ cors
 
 ## [BE 서버와 연결하기](#section-3--fe-구축하기)
 
+front 폴더 생성 후 `index.html` 생성
+
 fetch 이용
 
 https://developer.mozilla.org/ko/docs/Web/API/Fetch_API/Using_Fetch
+
+
+
+```html
+<button onclick="getFortune()">요청하기</button>
+
+<script>
+  async function getFortune(data) {
+    try {
+      const response = await fetch("http://localhost:3000/fortuneTell", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const data = await response.json();
+      console.log("성공:", data);
+    } catch (error) {
+      console.error("실패:", error);
+    }
+  }
+</script>
+```
 
 
 ## [채팅 UI](#section-3--fe-구축하기)
